@@ -14,7 +14,7 @@ type CustomClaims struct {
 }
 
 func GenerateJWT(userID uuid.UUID, role string, tokenVersion int, tlt time.Duration, sk string) (string, error) {
-	expirationTime := time.Now().Add(tlt)
+	expirationTime := time.Now().Add(tlt * time.Second)
 	claims := &CustomClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			Subject:   userID.String(),
