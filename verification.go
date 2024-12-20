@@ -1,4 +1,4 @@
-package cifrajwt
+package tokens
 
 import (
 	"context"
