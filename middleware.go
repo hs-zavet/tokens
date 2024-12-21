@@ -16,6 +16,7 @@ const (
 	UserIDKey       contextKey = "userID"
 	TokenVersionKey contextKey = "tokenVersion"
 	RoleKey         contextKey = "role"
+	DeviceIDKey     contextKey = "deviceID"
 )
 
 // JWTMiddleware validates the JWT token and injects user data into the request context.
@@ -39,7 +40,7 @@ func JWTMiddleware(secretKey string, log *logrus.Logger) func(http.Handler) http
 
 			log.Debugf("Token received: %s", tokenString)
 
-			userID, tokenVersion, role, err := VerifyJWTAndExtractClaims(r.Context(), tokenString, secretKey, log)
+			userID, deviceID, tokenVersion, role, err := VerifyJWTAndExtractClaims(r.Context(), tokenString, secretKey, log)
 			if err != nil {
 				log.Warnf("Token validation failed: %v", err)
 				httpkit.RenderErr(w, problems.Unauthorized("Token validation failed"))
@@ -52,6 +53,7 @@ func JWTMiddleware(secretKey string, log *logrus.Logger) func(http.Handler) http
 			ctx := context.WithValue(r.Context(), UserIDKey, userID)
 			ctx = context.WithValue(ctx, TokenVersionKey, tokenVersion)
 			ctx = context.WithValue(ctx, RoleKey, role)
+			ctx = context.WithValue(ctx, DeviceIDKey, deviceID)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})

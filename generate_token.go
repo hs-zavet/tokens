@@ -9,11 +9,12 @@ import (
 
 type CustomClaims struct {
 	jwt.RegisteredClaims
-	Role         string `json:"role"`
-	TokenVersion int    `json:"token_version"`
+	Role         string    `json:"role"`
+	TokenVersion int       `json:"token_version"`
+	DeviceID     uuid.UUID `json:"device_id"`
 }
 
-func GenerateJWT(userID uuid.UUID, role string, tokenVersion int, tlt time.Duration, sk string) (string, error) {
+func GenerateJWT(userID uuid.UUID, deviceID uuid.UUID, role string, tokenVersion int, tlt time.Duration, sk string) (string, error) {
 	expirationTime := time.Now().Add(tlt * time.Second)
 	claims := &CustomClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -22,6 +23,7 @@ func GenerateJWT(userID uuid.UUID, role string, tokenVersion int, tlt time.Durat
 		},
 		Role:         role,
 		TokenVersion: tokenVersion,
+		DeviceID:     deviceID,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
