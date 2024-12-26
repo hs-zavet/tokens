@@ -58,3 +58,11 @@ func (b *UsersBin) GetAccess(key string, sessionID string) (bool, error) {
 
 	return result, nil
 }
+
+func (b *UsersBin) Remove(key string, sessionID string) error {
+	err := b.client.SRem(b.ctx, key, sessionID).Err()
+	if err != nil {
+		return err
+	}
+	return nil
+}
