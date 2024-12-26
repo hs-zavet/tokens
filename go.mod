@@ -1,4 +1,4 @@
-module github.com/cifra-city/tokens
+module github.com/cifra-city/tokens/v2
 
 go 1.23.1
 
