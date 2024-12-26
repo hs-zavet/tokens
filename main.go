@@ -13,18 +13,8 @@ import (
 type tokenManager interface {
 	ExtractJWT(ctx context.Context) (string, error)
 	GenerateJWT(userID uuid.UUID, deviceID uuid.UUID, role string, tokenVersion int, tlt time.Duration, sk string) (string, error)
-	JWTMiddleware(secretKey string, log *logrus.Logger) func(http.Handler) http.Handler
-	VerifyJWTAndExtractClaims(
-		ctx context.Context,
-		tokenString,
-		secretKey string,
-		log *logrus.Logger) (
-		userId uuid.UUID,
-		deviceId uuid.UUID,
-		tokenVersion int,
-		role string,
-		err error,
-	)
+	Middleware(secretKey string, log *logrus.Logger) func(http.Handler) http.Handler
+	VerifyJWTAndExtractClaims(tokenString string, secretKey string) (userData *UserData, err error)
 }
 
 type TokenManager struct {

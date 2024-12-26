@@ -19,8 +19,8 @@ const (
 	DeviceIDKey     contextKey = "deviceID"
 )
 
-// JWTMiddleware validates the JWT token and injects user data into the request context.
-func (m *TokenManager) JWTMiddleware(secretKey string, log *logrus.Logger) func(http.Handler) http.Handler {
+// Middleware validates the JWT token and injects user data into the request context.
+func (m *TokenManager) Middleware(secretKey string, log *logrus.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			authHeader := r.Header.Get("Authorization")
@@ -31,7 +31,7 @@ func (m *TokenManager) JWTMiddleware(secretKey string, log *logrus.Logger) func(
 
 			parts := strings.Split(authHeader, " ")
 			if len(parts) != 2 || strings.ToLower(parts[0]) != "bearer" {
-				log.Warn("Invalid Authorization header format")
+				log.Debugf("Invalid Authorization header format")
 				httpkit.RenderErr(w, problems.Unauthorized("Invalid Authorization header"))
 				return
 			}
@@ -42,12 +42,16 @@ func (m *TokenManager) JWTMiddleware(secretKey string, log *logrus.Logger) func(
 
 			userData, err := m.VerifyJWTAndExtractClaims(tokenString, secretKey)
 			if err != nil {
-				log.Warnf("Token validation failed: %v", err)
+				log.Debugf("Token validation failed: %v", err)
 				httpkit.RenderErr(w, problems.Unauthorized("Token validation failed"))
 				return
 			}
+			if userData == nil {
+				log.Debugf("Token validation failed")
+				httpkit.RenderErr(w, problems.Unauthorized("Token validation failed"))
+			}
 
-			log.Infof("Authenticated user: %s, Token Version: %d, Role: %s", userData.ID, userData.tokenVersion, userData.role)
+			log.Debugf("Authenticated user: %s, Token Version: %d, Role: %s", userData.ID, userData.tokenVersion, userData.role)
 
 			// Add user ID, token version, and role to the context
 			ctx := context.WithValue(r.Context(), UserIDKey, userData.ID)

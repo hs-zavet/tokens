@@ -32,7 +32,11 @@ func (m *TokenManager) VerifyJWTAndExtractClaims(tokenString string, secretKey s
 	role := claims.Role
 	deviceId := claims.DeviceID
 
-	cond, err := m.Bin.GetAccess(userID.String(), tokenString)
+	if tokenString == "" || secretKey == "" && tokenVersion == 0 {
+		return nil, jwt.ErrTokenMalformed
+	}
+
+	cond, err := m.Bin.GetAccess(userID.String(), deviceId.String())
 	if err != nil {
 		return nil, err
 	}
