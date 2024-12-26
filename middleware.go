@@ -14,8 +14,8 @@ type contextKey string
 
 const (
 	UserIDKey       contextKey = "userID"
-	TokenVersionKey contextKey = "tokenVersion"
-	RoleKey         contextKey = "role"
+	TokenVersionKey contextKey = "TokenVersion"
+	RoleKey         contextKey = "Role"
 	DeviceIDKey     contextKey = "deviceID"
 )
 
@@ -51,12 +51,12 @@ func (m *TokenManager) Middleware(secretKey string, log *logrus.Logger) func(htt
 				httpkit.RenderErr(w, problems.Unauthorized("Token validation failed"))
 			}
 
-			log.Debugf("Authenticated user: %s, Token Version: %d, Role: %s", userData.ID, userData.tokenVersion, userData.role)
+			log.Debugf("Authenticated user: %s, Token Version: %d, Role: %s", userData.ID, userData.TokenVersion, userData.Role)
 
-			// Add user ID, token version, and role to the context
+			// Add user ID, token version, and Role to the context
 			ctx := context.WithValue(r.Context(), UserIDKey, userData.ID)
-			ctx = context.WithValue(ctx, TokenVersionKey, userData.tokenVersion)
-			ctx = context.WithValue(ctx, RoleKey, userData.role)
+			ctx = context.WithValue(ctx, TokenVersionKey, userData.TokenVersion)
+			ctx = context.WithValue(ctx, RoleKey, userData.Role)
 			ctx = context.WithValue(ctx, DeviceIDKey, userData.ID)
 
 			next.ServeHTTP(w, r.WithContext(ctx))

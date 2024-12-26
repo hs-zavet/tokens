@@ -9,7 +9,7 @@ import (
 
 type CustomClaims struct {
 	jwt.RegisteredClaims
-	Role         string    `json:"role"`
+	Role         string    `json:"Role"`
 	TokenVersion int       `json:"token_version"`
 	DeviceID     uuid.UUID `json:"device_id"`
 }

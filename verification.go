@@ -7,9 +7,9 @@ import (
 
 type UserData struct {
 	ID           uuid.UUID
-	deviceId     uuid.UUID
-	tokenVersion int
-	role         string
+	DevID        uuid.UUID
+	TokenVersion int
+	Role         string
 }
 
 // VerifyJWTAndExtractClaims validates a JWT token and extracts relevant claims.
@@ -46,8 +46,8 @@ func (m *TokenManager) VerifyJWTAndExtractClaims(tokenString string, secretKey s
 
 	return &UserData{
 		ID:           userID,
-		deviceId:     deviceId,
-		tokenVersion: tokenVersion,
-		role:         role,
+		DevID:        deviceId,
+		TokenVersion: tokenVersion,
+		Role:         role,
 	}, nil
 }
