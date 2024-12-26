@@ -14,7 +14,7 @@ type CustomClaims struct {
 	DeviceID     uuid.UUID `json:"device_id"`
 }
 
-func GenerateJWT(userID uuid.UUID, deviceID uuid.UUID, role string, tokenVersion int, tlt time.Duration, sk string) (string, error) {
+func (m *TokenManager) GenerateJWT(userID uuid.UUID, deviceID uuid.UUID, role string, tokenVersion int, tlt time.Duration, sk string) (string, error) {
 	expirationTime := time.Now().Add(tlt * time.Second)
 	claims := &CustomClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
