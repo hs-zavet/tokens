@@ -21,8 +21,8 @@ type TokenManager struct {
 	Bin *bin.UsersBin
 }
 
-func NewTokenManager(redisAddr, redisPassword string, db int, ttl time.Duration) *TokenManager {
+func NewTokenManager(redisAddr, redisPassword string, db int, tlt time.Duration) *TokenManager {
 	return &TokenManager{
-		Bin: bin.NewUsersBin(redisAddr, redisPassword, db, ttl),
+		Bin: bin.NewUsersBin(redisAddr, redisPassword, db, tlt*time.Second),
 	}
 }

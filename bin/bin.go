@@ -10,10 +10,10 @@ import (
 type UsersBin struct {
 	client *redis.Client
 	ctx    context.Context
-	ttl    time.Duration
+	tlt    time.Duration
 }
 
-func NewUsersBin(redisAddr, redisPassword string, db int, ttl time.Duration) *UsersBin {
+func NewUsersBin(redisAddr, redisPassword string, db int, tlt time.Duration) *UsersBin {
 	client := redis.NewClient(&redis.Options{
 		Addr:     redisAddr,
 		Password: redisPassword,
@@ -23,7 +23,7 @@ func NewUsersBin(redisAddr, redisPassword string, db int, ttl time.Duration) *Us
 	return &UsersBin{
 		client: client,
 		ctx:    context.Background(),
-		ttl:    ttl,
+		tlt:    tlt,
 	}
 }
 
@@ -33,7 +33,7 @@ func (b *UsersBin) Add(key string, sessionID string) error {
 		return err
 	}
 
-	err = b.client.Expire(b.ctx, key, b.ttl).Err()
+	err = b.client.Expire(b.ctx, key, b.tlt).Err()
 	if err != nil {
 		return err
 	}
