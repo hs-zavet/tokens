@@ -56,7 +56,7 @@ func (b *UsersBin) GetAccess(key string, sessionID string) (bool, error) {
 		return false, err
 	}
 
-	return result, nil
+	return !result, nil
 }
 
 func (b *UsersBin) Remove(key string, sessionID string) error {

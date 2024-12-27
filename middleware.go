@@ -57,7 +57,7 @@ func (m *TokenManager) Middleware(secretKey string, log *logrus.Logger) func(htt
 			ctx := context.WithValue(r.Context(), UserIDKey, userData.ID)
 			ctx = context.WithValue(ctx, TokenVersionKey, userData.TokenVersion)
 			ctx = context.WithValue(ctx, RoleKey, userData.Role)
-			ctx = context.WithValue(ctx, DeviceIDKey, userData.ID)
+			ctx = context.WithValue(ctx, DeviceIDKey, userData.DevID)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
