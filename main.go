@@ -22,8 +22,9 @@ type TokenManager struct {
 	log *logrus.Logger
 }
 
-func NewTokenManager(redisAddr, redisPassword string, db int, tlt time.Duration) *TokenManager {
+func NewTokenManager(redisAddr, redisPassword string, dbNumRedis int, log *logrus.Logger, tlt time.Duration) *TokenManager {
 	return &TokenManager{
-		Bin: bin.NewUsersBin(redisAddr, redisPassword, db, tlt*time.Second),
+		Bin: bin.NewUsersBin(redisAddr, redisPassword, dbNumRedis, tlt*time.Second),
+		log: log,
 	}
 }
