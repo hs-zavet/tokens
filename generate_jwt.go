@@ -9,16 +9,14 @@ import (
 
 type CustomClaims struct {
 	jwt.RegisteredClaims
-	Role         string    `json:"Role"`
-	TokenVersion int       `json:"token_version"`
-	DeviceID     uuid.UUID `json:"device_id"`
+	Role     string    `json:"Role"`
+	DeviceID uuid.UUID `json:"device_id"`
 }
 
 func (m *TokenManager) GenerateJWT(
 	userID uuid.UUID,
 	deviceID uuid.UUID,
 	role string,
-	tokenVersion int,
 	tlt time.Duration,
 	sk string,
 ) (string, error) {
@@ -28,9 +26,8 @@ func (m *TokenManager) GenerateJWT(
 			Subject:   userID.String(),
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 		},
-		Role:         role,
-		TokenVersion: tokenVersion,
-		DeviceID:     deviceID,
+		Role:     role,
+		DeviceID: deviceID,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

@@ -28,11 +28,10 @@ func (m *TokenManager) VerifyJWTAndExtractClaims(tokenString string, secretKey s
 		return nil, err
 	}
 
-	tokenVersion := claims.TokenVersion
 	role := claims.Role
 	deviceId := claims.DeviceID
 
-	if tokenString == "" || secretKey == "" && tokenVersion == 0 {
+	if tokenString == "" || secretKey == "" {
 		return nil, jwt.ErrTokenMalformed
 	}
 
@@ -45,9 +44,8 @@ func (m *TokenManager) VerifyJWTAndExtractClaims(tokenString string, secretKey s
 	}
 
 	return &UserData{
-		ID:           userID,
-		DevID:        deviceId,
-		TokenVersion: tokenVersion,
-		Role:         role,
+		ID:    userID,
+		DevID: deviceId,
+		Role:  role,
 	}, nil
 }

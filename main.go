@@ -12,13 +12,14 @@ import (
 
 type tokenManager interface {
 	ExtractJWT(ctx context.Context) (string, error)
-	GenerateJWT(userID uuid.UUID, deviceID uuid.UUID, role string, tokenVersion int, tlt time.Duration, sk string) (string, error)
-	Middleware(secretKey string, log *logrus.Logger) func(http.Handler) http.Handler
+	GenerateJWT(userID uuid.UUID, deviceID uuid.UUID, role string, tlt time.Duration, sk string) (string, error)
+	Middleware(secretKey string) func(http.Handler) http.Handler
 	VerifyJWTAndExtractClaims(tokenString string, secretKey string) (userData *UserData, err error)
 }
 
 type TokenManager struct {
 	Bin *bin.UsersBin
+	log *logrus.Logger
 }
 
 func NewTokenManager(redisAddr, redisPassword string, db int, tlt time.Duration) *TokenManager {
