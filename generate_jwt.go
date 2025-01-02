@@ -1,6 +1,7 @@
 package tokens
 
 import (
+	"errors"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -20,6 +21,10 @@ func (m *TokenManager) GenerateJWT(
 	tlt time.Duration,
 	sk string,
 ) (string, error) {
+	if !IsSupportedRole(role) {
+		return "", errors.New("unsupported role")
+	}
+
 	expirationTime := time.Now().Add(tlt * time.Second)
 	claims := &CustomClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
