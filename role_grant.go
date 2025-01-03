@@ -9,17 +9,8 @@ import (
 	"github.com/cifra-city/httpkit/problems"
 )
 
-type contextKey string
-
-const (
-	UserIDKey       contextKey = "userID"
-	TokenVersionKey contextKey = "TokenVersion"
-	RoleKey         contextKey = "Role"
-	DeviceIDKey     contextKey = "deviceID"
-)
-
-// AuthMiddleware validates the JWT token and injects user data into the request context.
-func (m *TokenManager) AuthMiddleware(secretKey string) func(http.Handler) http.Handler {
+// RoleGrant validates the JWT token by roles and injects user data into the request context.
+func (m *TokenManager) RoleGrant(secretKey string, roles ...string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			authHeader := r.Header.Get("Authorization")
@@ -46,9 +37,23 @@ func (m *TokenManager) AuthMiddleware(secretKey string) func(http.Handler) http.
 				httpkit.RenderErr(w, problems.Unauthorized("Token validation failed"))
 				return
 			}
-			if userData == nil {
-				m.log.Debugf("Token validation failed")
+			if userData == nil || userData.Role == "" {
+				m.log.Debugf("Token validation failed: invalid user data")
 				httpkit.RenderErr(w, problems.Unauthorized("Token validation failed"))
+				return
+			}
+
+			// Check if user role matches any of the allowed roles
+			roleAllowed := false
+			for _, role := range roles {
+				if userData.Role == role {
+					roleAllowed = true
+					break
+				}
+			}
+			if !roleAllowed {
+				m.log.Debugf("Token validation failed: role not allowed")
+				httpkit.RenderErr(w, problems.Unauthorized("Role not allowed"))
 				return
 			}
 
