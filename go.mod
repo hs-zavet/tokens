@@ -3,7 +3,7 @@ module github.com/cifra-city/tokens
 go 1.23.1
 
 require (
-	github.com/cifra-city/httpkit v0.0.0-20241220020938-31caee808935
+	github.com/cifra-city/comtools v0.0.2
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/google/uuid v1.6.0
 	github.com/redis/go-redis/v9 v9.7.0
