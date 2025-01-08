@@ -10,7 +10,7 @@ import (
 )
 
 // RoleGrant validates the JWT token by roles and injects user data into the request context.
-func (m *tokenManager) RoleGrant(secretKey string, roles ...string) func(http.Handler) http.Handler {
+func (m *TokenManager) RoleGrant(secretKey string, roles ...string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			authHeader := r.Header.Get("Authorization")

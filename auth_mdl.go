@@ -18,7 +18,7 @@ const (
 )
 
 // AuthMdl validates the JWT token and injects user data into the request context.
-func (m *tokenManager) AuthMdl(secretKey string) func(http.Handler) http.Handler {
+func (m *TokenManager) AuthMdl(secretKey string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			authHeader := r.Header.Get("Authorization")

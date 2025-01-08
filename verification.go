@@ -13,7 +13,7 @@ type UserData struct {
 }
 
 // VerifyJWTAndExtractClaims validates a JWT token and extracts relevant claims.
-func (m *tokenManager) VerifyJWTAndExtractClaims(tokenString string, secretKey string) (userData *UserData, err error) {
+func (m *TokenManager) VerifyJWTAndExtractClaims(tokenString string, secretKey string) (userData *UserData, err error) {
 	claims := &CustomClaims{}
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secretKey), nil
@@ -50,7 +50,7 @@ func (m *tokenManager) VerifyJWTAndExtractClaims(tokenString string, secretKey s
 	}, nil
 }
 
-func (m *tokenManager) VerifyServiceJWT(tokenString, secretKey string) (*ServiceClaims, error) {
+func (m *TokenManager) VerifyServiceJWT(tokenString, secretKey string) (*ServiceClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &ServiceClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secretKey), nil
 	})
