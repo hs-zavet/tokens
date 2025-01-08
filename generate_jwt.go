@@ -14,7 +14,7 @@ type CustomClaims struct {
 	DeviceID uuid.UUID `json:"device_id"`
 }
 
-func (m *TokenManager) GenerateJWT(
+func (m *tokenManager) GenerateJWT(
 	userID uuid.UUID,
 	deviceID uuid.UUID,
 	role string,
@@ -33,6 +33,26 @@ func (m *TokenManager) GenerateJWT(
 		},
 		Role:     role,
 		DeviceID: deviceID,
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString([]byte(sk))
+}
+
+type ServiceClaims struct {
+	jwt.RegisteredClaims
+	Service string `json:"service"`
+}
+
+func (m *tokenManager) GenerateServiceJWT(serviceName string, tlt time.Duration, sk string) (string, error) {
+	expirationTime := time.Now().Add(tlt)
+
+	claims := &ServiceClaims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			Subject:   serviceName,
+			ExpiresAt: jwt.NewNumericDate(expirationTime),
+		},
+		Service: serviceName,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

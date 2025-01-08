@@ -12,14 +12,13 @@ import (
 type contextKey string
 
 const (
-	UserIDKey       contextKey = "userID"
-	TokenVersionKey contextKey = "TokenVersion"
-	RoleKey         contextKey = "Role"
-	DeviceIDKey     contextKey = "deviceID"
+	UserIDKey   contextKey = "userID"
+	RoleKey     contextKey = "Role"
+	DeviceIDKey contextKey = "deviceID"
 )
 
-// AuthMiddleware validates the JWT token and injects user data into the request context.
-func (m *TokenManager) AuthMiddleware(secretKey string) func(http.Handler) http.Handler {
+// AuthMdl validates the JWT token and injects user data into the request context.
+func (m *tokenManager) AuthMdl(secretKey string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			authHeader := r.Header.Get("Authorization")
@@ -51,8 +50,6 @@ func (m *TokenManager) AuthMiddleware(secretKey string) func(http.Handler) http.
 				httpkit.RenderErr(w, problems.Unauthorized("Token validation failed"))
 				return
 			}
-
-			m.log.Debugf("Authenticated user: %s, Token Version: %d, Role: %s", userData.ID, userData.TokenVersion, userData.Role)
 
 			ctx := context.WithValue(r.Context(), UserIDKey, userData.ID)
 			ctx = context.WithValue(ctx, RoleKey, userData.Role)

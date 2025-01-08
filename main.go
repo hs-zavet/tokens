@@ -10,20 +10,25 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type tokenManager interface {
-	ExtractJWT(ctx context.Context) (string, error)
+type TokenManager interface {
 	GenerateJWT(userID uuid.UUID, deviceID uuid.UUID, role string, tlt time.Duration, sk string) (string, error)
-	Middleware(secretKey string) func(http.Handler) http.Handler
+	ExtractJWT(ctx context.Context) (string, error)
 	VerifyJWTAndExtractClaims(tokenString string, secretKey string) (userData *UserData, err error)
+
+	GenerateServiceJWT(serviceName string, tlt time.Duration, sk string) (string, error)
+	VerifyServiceJWT(tokenString, secretKey string) (*ServiceClaims, error)
+
+	AuthMdl(secretKey string) func(http.Handler) http.Handler
+	RoleGrant(secretKey string, roles ...string) func(http.Handler) http.Handler
 }
 
-type TokenManager struct {
+type tokenManager struct {
 	Bin *bin.UsersBin
 	log *logrus.Logger
 }
 
-func NewTokenManager(redisAddr, redisPassword string, dbNumRedis int, log *logrus.Logger, tlt time.Duration) *TokenManager {
-	return &TokenManager{
+func NewTokenManager(redisAddr, redisPassword string, dbNumRedis int, log *logrus.Logger, tlt time.Duration) TokenManager {
+	return &tokenManager{
 		Bin: bin.NewUsersBin(redisAddr, redisPassword, dbNumRedis, tlt*time.Second),
 		log: log,
 	}
