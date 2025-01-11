@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/cifra-city/comtools/httpkit"
-	"github.com/cifra-city/comtools/httpkit/problems"
+	"github.com/recovery-flow/comtools/httpkit"
+	"github.com/recovery-flow/comtools/httpkit/problems"
 )
 
 // RoleGrant validates the JWT token by roles and injects user data into the request context.

@@ -1,12 +1,12 @@
-module github.com/cifra-city/tokens
+module github.com/recovery-flow/tokens
 
 go 1.23.1
 
 require (
-	github.com/cifra-city/comtools v0.0.2
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/google/uuid v1.6.0
 	github.com/pkg/errors v0.9.1
+	github.com/recovery-flow/comtools v0.0.41
 	github.com/redis/go-redis/v9 v9.7.0
 	github.com/sirupsen/logrus v1.9.3
 )

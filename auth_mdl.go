@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/cifra-city/comtools/httpkit"
-	"github.com/cifra-city/comtools/httpkit/problems"
+	"github.com/recovery-flow/comtools/httpkit"
+	"github.com/recovery-flow/comtools/httpkit/problems"
 )
 
 type contextKey string

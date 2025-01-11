@@ -3,7 +3,7 @@ package tokens
 import (
 	"time"
 
-	"github.com/cifra-city/tokens/bin"
+	"github.com/recovery-flow/tokens/bin"
 	"github.com/sirupsen/logrus"
 )
 
