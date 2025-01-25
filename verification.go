@@ -1,9 +1,10 @@
 package tokens
 
 import (
+	"fmt"
+
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
 )
 
 type UserData struct {
@@ -61,7 +62,7 @@ func (m *TokenManager) VerifyServiceJWT(tokenString, secretKey string) (*Service
 
 	claims, ok := token.Claims.(*ServiceClaims)
 	if !ok || !token.Valid {
-		return nil, errors.New("invalid service token")
+		return nil, fmt.Errorf("invalid token")
 	}
 
 	return claims, nil

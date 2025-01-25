@@ -1,11 +1,12 @@
 package tokens
 
 import (
-	"errors"
+	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"github.com/recovery-flow/roles"
 )
 
 type CustomClaims struct {
@@ -21,8 +22,9 @@ func (m *TokenManager) GenerateJWT(
 	tlt time.Duration,
 	sk string,
 ) (string, error) {
-	if !IsSupportedRole(role) {
-		return "", errors.New("unsupported role")
+	_, err := roles.StringToRoleUser(role)
+	if err != nil {
+		return "", fmt.Errorf("invalid role: %w", err)
 	}
 
 	expirationTime := time.Now().Add(tlt * time.Second)
