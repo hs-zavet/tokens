@@ -25,7 +25,7 @@ type TokenManager interface {
 
 	ExtractJWT(ctx context.Context) (string, error)
 	VerifyJWT(ctx context.Context, tokenString string) (userData *CustomClaims, err error)
-	AddToBlackList(ctx context.Context, tokenString string) error
+	AddToBlackList(ctx context.Context, sessionID string, userID string) error
 
 	AuthMdl(ctx context.Context) func(http.Handler) http.Handler
 	RoleMdl(ctx context.Context, roles ...string) func(http.Handler) http.Handler
@@ -141,13 +141,6 @@ func (t *tokenManager) GenerateJWT(
 	return token.SignedString([]byte(t.SecretKey))
 }
 
-func (t *tokenManager) AddToBlackList(ctx context.Context, tokenString string) error {
-	claims, err := t.VerifyJWT(ctx, tokenString)
-	if err != nil {
-		return err
-	}
-	if claims.DeviceID == nil {
-		return fmt.Errorf("device id not found in claims")
-	}
-	return t.Bin.Add(ctx, tokenString, *claims.DeviceID)
+func (t *tokenManager) AddToBlackList(ctx context.Context, sessionID string, UserID string) error {
+	return t.Bin.Add(ctx, sessionID, UserID)
 }
