@@ -52,7 +52,7 @@ func (t *tokenManager) RoleMdl(ctx context.Context, roles ...string) func(http.H
 
 			ctx := context.WithValue(r.Context(), UserIDKey, userData.ID)
 			ctx = context.WithValue(ctx, RoleKey, userData.Role)
-			ctx = context.WithValue(ctx, DeviceIDKey, userData.DeviceID)
+			ctx = context.WithValue(ctx, DeviceIDKey, userData.SessionID)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})

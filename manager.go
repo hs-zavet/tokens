@@ -78,7 +78,7 @@ func (t *tokenManager) VerifyJWT(ctx context.Context, tokenString string) (userD
 		return nil, err
 	}
 
-	deviceId := claims.DeviceID
+	deviceId := claims.SessionID
 
 	if tokenString == "" || t.SecretKey == "" {
 		return nil, jwt.ErrTokenMalformed
@@ -97,8 +97,8 @@ func (t *tokenManager) VerifyJWT(ctx context.Context, tokenString string) (userD
 
 type CustomClaims struct {
 	jwt.RegisteredClaims
-	Role     *string `json:"Role,omitempty"`
-	DeviceID *string `json:"device_id,omitempty"`
+	Role      *string `json:"role,omitempty"`
+	SessionID *string `json:"session_id,omitempty"`
 }
 
 func (t *tokenManager) GenerateJWT(
@@ -116,8 +116,8 @@ func (t *tokenManager) GenerateJWT(
 			Subject:   sub,
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 		},
-		Role:     role,
-		DeviceID: deviceID,
+		Role:      role,
+		SessionID: deviceID,
 	}
 	if role != nil {
 		_, err := roles.StringToRoleUser(*role)
@@ -131,7 +131,7 @@ func (t *tokenManager) GenerateJWT(
 		if err != nil {
 			return "", fmt.Errorf("invalid device id: %w", err)
 		}
-		claims.DeviceID = deviceID
+		claims.SessionID = deviceID
 	}
 	if aud != nil {
 		claims.Audience = aud
