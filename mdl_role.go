@@ -1,4 +1,4 @@
-package manager
+package tokens
 
 import (
 	"context"
@@ -9,15 +9,8 @@ import (
 	"github.com/recovery-flow/comtools/httpkit/problems"
 )
 
-type contextKey string
-
-const (
-	UserIDKey   contextKey = "userID"
-	RoleKey     contextKey = "Role"
-	DeviceIDKey contextKey = "deviceID"
-)
-
-func (t *tokenManager) AuthMdl(ctx context.Context) func(http.Handler) http.Handler {
+// RoleMdl validates the JWT token by roles and injects user data into the request context.
+func (t *tokenManager) RoleMdl(ctx context.Context, roles ...string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			authHeader := r.Header.Get("Authorization")
@@ -34,19 +27,32 @@ func (t *tokenManager) AuthMdl(ctx context.Context) func(http.Handler) http.Hand
 
 			tokenString := parts[1]
 
-			tokenData, err := t.VerifyJWT(ctx, tokenString)
+			userData, err := t.VerifyJWT(ctx, tokenString)
 			if err != nil {
 				httpkit.RenderErr(w, problems.Unauthorized("Token validation failed"))
 				return
 			}
-			if tokenData == nil {
+
+			if userData.Role == nil {
 				httpkit.RenderErr(w, problems.Unauthorized("Token validation failed"))
 				return
 			}
 
-			ctx = context.WithValue(r.Context(), UserIDKey, tokenData.ID)
-			ctx = context.WithValue(ctx, RoleKey, tokenData.Role)
-			ctx = context.WithValue(ctx, DeviceIDKey, tokenData.DeviceID)
+			roleAllowed := false
+			for _, role := range roles {
+				if *userData.Role == role {
+					roleAllowed = true
+					break
+				}
+			}
+			if !roleAllowed {
+				httpkit.RenderErr(w, problems.Unauthorized("Role not allowed"))
+				return
+			}
+
+			ctx := context.WithValue(r.Context(), UserIDKey, userData.ID)
+			ctx = context.WithValue(ctx, RoleKey, userData.Role)
+			ctx = context.WithValue(ctx, DeviceIDKey, userData.DeviceID)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
