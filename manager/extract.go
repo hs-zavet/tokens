@@ -1,4 +1,4 @@
-package tokens
+package manager
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func (m *TokenManager) ExtractJWT(ctx context.Context) (string, error) {
+func (t *tokenManager) ExtractJWT(ctx context.Context) (string, error) {
 	req, ok := ctx.Value("userID").(*http.Request)
 	if !ok || req == nil {
 		return "", fmt.Errorf("failed to retrieve HTTP request from context")

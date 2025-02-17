@@ -9,7 +9,6 @@ import (
 
 type UsersBin struct {
 	client *redis.Client
-	ctx    context.Context
 	tlt    time.Duration
 }
 
@@ -22,47 +21,41 @@ func NewUsersBin(redisAddr, redisPassword string, db int, tlt time.Duration) *Us
 
 	return &UsersBin{
 		client: client,
-		ctx:    context.Background(),
 		tlt:    tlt,
 	}
 }
 
-func (b *UsersBin) Add(key string, sessionID string) error {
-	err := b.client.SAdd(b.ctx, key, sessionID).Err()
-	if err != nil {
-		return err
-	}
-
-	err = b.client.Expire(b.ctx, key, b.tlt).Err()
-	if err != nil {
-		return err
-	}
-
-	return nil
+func (b *UsersBin) Add(ctx context.Context, key string, sessionID string) error {
+	pipe := b.client.TxPipeline()
+	pipe.SAdd(ctx, key, sessionID)
+	pipe.Expire(ctx, key, b.tlt)
+	_, err := pipe.Exec(ctx)
+	return err
 }
 
-func (b *UsersBin) GetAll(key string) ([]string, error) {
-	IDs, err := b.client.SMembers(b.ctx, key).Result()
+func (b *UsersBin) GetAll(ctx context.Context, key string) ([]string, error) {
+	IDs, err := b.client.SMembers(ctx, key).Result()
 	if err != nil {
 		return nil, err
 	}
-
+	if len(IDs) == 0 {
+		return nil, nil
+	}
 	return IDs, nil
 }
 
-func (b *UsersBin) GetAccess(key string, sessionID string) (bool, error) {
-	result, err := b.client.SIsMember(b.ctx, key, sessionID).Result()
+func (b *UsersBin) GetAccess(ctx context.Context, key string, sessionID string) (bool, error) {
+	result, err := b.client.SIsMember(ctx, key, sessionID).Result()
 	if err != nil {
 		return false, err
 	}
-
-	return !result, nil
+	return result, nil
 }
 
-func (b *UsersBin) Remove(key string, sessionID string) error {
-	err := b.client.SRem(b.ctx, key, sessionID).Err()
+func (b *UsersBin) Remove(ctx context.Context, key string, sessionID string) (int64, error) {
+	count, err := b.client.SRem(ctx, key, sessionID).Result()
 	if err != nil {
-		return err
+		return 0, err
 	}
-	return nil
+	return count, nil
 }
