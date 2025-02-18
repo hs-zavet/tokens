@@ -10,7 +10,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/recovery-flow/roles"
-	"github.com/recovery-flow/tokens/bin"
 )
 
 type TokenManager interface {
@@ -25,20 +24,16 @@ type TokenManager interface {
 
 	ExtractJWT(ctx context.Context) (string, error)
 	VerifyJWT(ctx context.Context, tokenString string) (userData *CustomClaims, err error)
-	AddToBlackList(ctx context.Context, sessionID string, userID string) error
-
 	AuthMdl(ctx context.Context) func(http.Handler) http.Handler
 	RoleMdl(ctx context.Context, roles ...string) func(http.Handler) http.Handler
 }
 
 type tokenManager struct {
-	Bin       *bin.UsersBin
 	SecretKey string
 }
 
-func NewTokenManager(bin *bin.UsersBin, sk string) TokenManager {
+func NewTokenManager(sk string) TokenManager {
 	return &tokenManager{
-		Bin:       bin,
 		SecretKey: sk,
 	}
 }
@@ -71,25 +66,6 @@ func (t *tokenManager) VerifyJWT(ctx context.Context, tokenString string) (userD
 
 	if err != nil || !token.Valid {
 		return nil, err
-	}
-
-	userID, err := uuid.Parse(claims.Subject)
-	if err != nil {
-		return nil, err
-	}
-
-	deviceId := claims.SessionID
-
-	if tokenString == "" || t.SecretKey == "" {
-		return nil, jwt.ErrTokenMalformed
-	}
-
-	cond, err := t.Bin.GetAccess(ctx, userID.String(), *deviceId)
-	if err != nil {
-		return nil, err
-	}
-	if !cond {
-		return nil, jwt.ErrTokenUnverifiable
 	}
 
 	return claims, nil
@@ -139,8 +115,4 @@ func (t *tokenManager) GenerateJWT(
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(t.SecretKey))
-}
-
-func (t *tokenManager) AddToBlackList(ctx context.Context, sessionID string, UserID string) error {
-	return t.Bin.Add(ctx, sessionID, UserID)
 }
