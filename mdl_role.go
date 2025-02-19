@@ -27,20 +27,19 @@ func RoleMdl(ctx context.Context, sk string, roles ...string) func(http.Handler)
 
 			tokenString := parts[1]
 
-			userData, err := VerifyJWT(ctx, tokenString, sk)
+			tokenData, err := VerifyJWT(ctx, tokenString, sk)
 			if err != nil {
 				httpkit.RenderErr(w, problems.Unauthorized("Token validation failed"))
 				return
 			}
-
-			if userData.Role == nil {
+			if tokenData.Role == nil {
 				httpkit.RenderErr(w, problems.Unauthorized("Token validation failed"))
 				return
 			}
 
 			roleAllowed := false
 			for _, role := range roles {
-				if *userData.Role == role {
+				if *tokenData.Role == role {
 					roleAllowed = true
 					break
 				}
@@ -50,9 +49,9 @@ func RoleMdl(ctx context.Context, sk string, roles ...string) func(http.Handler)
 				return
 			}
 
-			ctx := context.WithValue(r.Context(), UserIDKey, userData.ID)
-			ctx = context.WithValue(ctx, RoleKey, userData.Role)
-			ctx = context.WithValue(ctx, DeviceIDKey, userData.SessionID)
+			ctx = context.WithValue(r.Context(), UserIDKey, tokenData.ID)
+			ctx = context.WithValue(ctx, RoleKey, tokenData.Role)
+			ctx = context.WithValue(ctx, DeviceIDKey, tokenData.SessionID)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})

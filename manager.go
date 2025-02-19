@@ -57,7 +57,7 @@ func GenerateJWT(
 		SessionID: deviceID,
 	}
 	if role != nil {
-		_, err := roles.StringToRoleUser(*role)
+		_, err := roles.ParseUserRole(*role)
 		if err != nil {
 			return "", fmt.Errorf("invalid role: %w", err)
 		}
