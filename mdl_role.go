@@ -10,7 +10,7 @@ import (
 )
 
 // RoleMdl validates the JWT token by roles and injects user data into the request context.
-func (t *tokenManager) RoleMdl(ctx context.Context, roles ...string) func(http.Handler) http.Handler {
+func RoleMdl(ctx context.Context, sk string, roles ...string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			authHeader := r.Header.Get("Authorization")
@@ -27,7 +27,7 @@ func (t *tokenManager) RoleMdl(ctx context.Context, roles ...string) func(http.H
 
 			tokenString := parts[1]
 
-			userData, err := t.VerifyJWT(ctx, tokenString)
+			userData, err := VerifyJWT(ctx, tokenString, sk)
 			if err != nil {
 				httpkit.RenderErr(w, problems.Unauthorized("Token validation failed"))
 				return

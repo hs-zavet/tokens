@@ -17,7 +17,7 @@ const (
 	DeviceIDKey contextKey = "deviceID"
 )
 
-func (t *tokenManager) AuthMdl(ctx context.Context) func(http.Handler) http.Handler {
+func AuthMdl(ctx context.Context, sk string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			authHeader := r.Header.Get("Authorization")
@@ -34,7 +34,7 @@ func (t *tokenManager) AuthMdl(ctx context.Context) func(http.Handler) http.Hand
 
 			tokenString := parts[1]
 
-			tokenData, err := t.VerifyJWT(ctx, tokenString)
+			tokenData, err := VerifyJWT(ctx, tokenString, sk)
 			if err != nil {
 				httpkit.RenderErr(w, problems.Unauthorized("Token validation failed"))
 				return
