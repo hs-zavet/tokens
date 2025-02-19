@@ -12,9 +12,9 @@ import (
 type contextKey string
 
 const (
-	UserIDKey   contextKey = "userID"
-	RoleKey     contextKey = "Role"
-	DeviceIDKey contextKey = "deviceID"
+	UserIDKey    contextKey = "userID"
+	RoleKey      contextKey = "Role"
+	SessionIDKey contextKey = "sessionID"
 )
 
 func AuthMdl(ctx context.Context, sk string) func(http.Handler) http.Handler {
@@ -46,7 +46,7 @@ func AuthMdl(ctx context.Context, sk string) func(http.Handler) http.Handler {
 
 			ctx = context.WithValue(r.Context(), UserIDKey, tokenData.ID)
 			ctx = context.WithValue(ctx, RoleKey, tokenData.Role)
-			ctx = context.WithValue(ctx, DeviceIDKey, tokenData.SessionID)
+			ctx = context.WithValue(ctx, SessionIDKey, tokenData.SessionID)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})

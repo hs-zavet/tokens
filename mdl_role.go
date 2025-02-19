@@ -51,7 +51,7 @@ func RoleMdl(ctx context.Context, sk string, roles ...string) func(http.Handler)
 
 			ctx = context.WithValue(r.Context(), UserIDKey, tokenData.ID)
 			ctx = context.WithValue(ctx, RoleKey, tokenData.Role)
-			ctx = context.WithValue(ctx, DeviceIDKey, tokenData.SessionID)
+			ctx = context.WithValue(ctx, SessionIDKey, tokenData.SessionID)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
