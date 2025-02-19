@@ -77,3 +77,22 @@ func GenerateJWT(
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(sk))
 }
+
+func GetAccountData(ctx context.Context) (*uuid.UUID, *uuid.UUID, *roles.UserRole, error) {
+	initiatorID, ok := ctx.Value(UserIDKey).(uuid.UUID)
+	if !ok {
+		return nil, nil, nil, fmt.Errorf("user not authenticated")
+	}
+
+	sessionID, ok := ctx.Value(SessionIDKey).(uuid.UUID)
+	if !ok {
+		return nil, nil, nil, fmt.Errorf("sessions not authenticated")
+	}
+
+	InitiatorRole, ok := ctx.Value(RoleKey).(roles.UserRole)
+	if !ok {
+		return nil, nil, nil, fmt.Errorf("role not authenticated")
+	}
+
+	return &initiatorID, &sessionID, &InitiatorRole, nil
+}
