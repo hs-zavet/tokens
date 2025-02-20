@@ -37,9 +37,12 @@ func AuthMdl(ctx context.Context, sk string) func(http.Handler) http.Handler {
 				return
 			}
 
-			ctx = context.WithValue(ctx, UserIDKey, tokenData.ID)
-			ctx = context.WithValue(ctx, IdentityKey, tokenData.Identity)
+			ctx = context.WithValue(ctx, AccountIDKey, tokenData.AccountID)
 			ctx = context.WithValue(ctx, SessionIDKey, tokenData.SessionID)
+			ctx = context.WithValue(ctx, IdentityKey, tokenData.Identity)
+			if tokenData.Identity == identity.Service {
+				ctx = context.WithValue(ctx, ServerKey, tokenData.ID)
+			}
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
@@ -81,9 +84,12 @@ func IdentityMdl(ctx context.Context, sk string, roles ...identity.IdnType) func
 				return
 			}
 
-			ctx = context.WithValue(ctx, UserIDKey, tokenData.ID)
-			ctx = context.WithValue(ctx, IdentityKey, tokenData.Identity)
+			ctx = context.WithValue(ctx, AccountIDKey, tokenData.AccountID)
 			ctx = context.WithValue(ctx, SessionIDKey, tokenData.SessionID)
+			ctx = context.WithValue(ctx, IdentityKey, tokenData.Identity)
+			if tokenData.Identity == identity.Service {
+				ctx = context.WithValue(ctx, ServerKey, tokenData.ID)
+			}
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
