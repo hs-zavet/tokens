@@ -7,12 +7,20 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
-	"github.com/recovery-flow/roles"
+	"github.com/recovery-flow/tokens/identity"
+)
+
+type contextKey string
+
+const (
+	UserIDKey    contextKey = "userID"
+	IdentityKey  contextKey = "identity"
+	SessionIDKey contextKey = "sessionID"
 )
 
 // VerifyJWT validates a JWT token and extracts relevant claims.
-func VerifyJWT(ctx context.Context, tokenString, sk string) (userData *AccountClaims, err error) {
-	claims := &AccountClaims{}
+func VerifyJWT(ctx context.Context, tokenString, sk string) (userData *StandardClaims, err error) {
+	claims := &StandardClaims{}
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(sk), nil
 	})
@@ -24,29 +32,29 @@ func VerifyJWT(ctx context.Context, tokenString, sk string) (userData *AccountCl
 	return claims, nil
 }
 
-type AccountClaims struct {
+type StandardClaims struct {
 	jwt.RegisteredClaims
-	Role      roles.UserRole `json:"role,omitempty"`
-	SessionID uuid.UUID      `json:"session_id,omitempty"`
+	Identity  identity.IdnType `json:"role"`
+	SessionID *uuid.UUID       `json:"session_id,omitempty"`
 }
 
-func GenerateAccountJWT(
+func GenerateJWT(
 	iss string, // who issued the token
-	sub string, // who is the subject of the token
+	sub string, // account id (subject)
 	aud []string, // claim identifies the recipients that the JWT is intended for
 	ttl time.Duration, // time life
-	role roles.UserRole, // user role
-	sessionID uuid.UUID, // session id
+	idn identity.IdnType, // user role
+	sessionID *uuid.UUID, // session id
 	sk string, // secret key
 ) (string, error) {
 	expirationTime := time.Now().Add(ttl * time.Second)
-	claims := &AccountClaims{
+	claims := &StandardClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    iss,
 			Subject:   sub,
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 		},
-		Role:      role,
+		Identity:  idn,
 		SessionID: sessionID,
 	}
 	if aud != nil {
@@ -57,8 +65,8 @@ func GenerateAccountJWT(
 	return token.SignedString([]byte(sk))
 }
 
-func GetAccountData(ctx context.Context) (*uuid.UUID, *uuid.UUID, *roles.UserRole, error) {
-	initiatorID, ok := ctx.Value(UserIDKey).(uuid.UUID)
+func GetAccountData(ctx context.Context) (*string, *uuid.UUID, *identity.IdnType, error) {
+	initiatorID, ok := ctx.Value(UserIDKey).(string)
 	if !ok {
 		return nil, nil, nil, fmt.Errorf("user not authenticated")
 	}
@@ -68,7 +76,7 @@ func GetAccountData(ctx context.Context) (*uuid.UUID, *uuid.UUID, *roles.UserRol
 		return nil, nil, nil, fmt.Errorf("sessions not authenticated")
 	}
 
-	InitiatorRole, ok := ctx.Value(RoleKey).(roles.UserRole)
+	InitiatorRole, ok := ctx.Value(IdentityKey).(identity.IdnType)
 	if !ok {
 		return nil, nil, nil, fmt.Errorf("role not authenticated")
 	}
