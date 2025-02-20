@@ -13,7 +13,7 @@ type contextKey string
 
 const (
 	UserIDKey    contextKey = "userID"
-	RoleKey      contextKey = "Role"
+	RoleKey      contextKey = "role"
 	SessionIDKey contextKey = "sessionID"
 )
 
