@@ -80,15 +80,19 @@ func GetAccountData(ctx context.Context) (*uuid.UUID, *uuid.UUID, *identity.IdnT
 		return nil, nil, nil, nil, fmt.Errorf("sessions not authenticated")
 	}
 
-	InitiatorRole, ok := ctx.Value(IdentityKey).(*identity.IdnType)
+	InitiatorRole, ok := ctx.Value(IdentityKey).(identity.IdnType)
 	if !ok {
 		return nil, nil, nil, nil, fmt.Errorf("role not authenticated")
 	}
 
-	server, ok := ctx.Value(ServerKey).(*string)
-	if !ok {
-		return nil, nil, nil, nil, fmt.Errorf("server not authenticated")
+	if InitiatorRole == identity.Service {
+		server, ok := ctx.Value(ServerKey).(string)
+		if !ok {
+			return nil, nil, nil, nil, fmt.Errorf("server not authenticated")
+		}
+
+		return initiatorID, sessionID, &InitiatorRole, &server, nil
 	}
 
-	return initiatorID, sessionID, InitiatorRole, server, nil
+	return initiatorID, sessionID, &InitiatorRole, nil, nil
 }

@@ -10,9 +10,11 @@ import (
 	"github.com/recovery-flow/tokens/identity"
 )
 
-func AuthMdl(ctx context.Context, sk string) func(http.Handler) http.Handler {
+func AuthMdl(sk string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := r.Context()
+
 			authHeader := r.Header.Get("Authorization")
 			if authHeader == "" {
 				httpkit.RenderErr(w, problems.Unauthorized("Missing Authorization header"))
@@ -27,7 +29,7 @@ func AuthMdl(ctx context.Context, sk string) func(http.Handler) http.Handler {
 
 			tokenString := parts[1]
 
-			tokenData, err := VerifyJWT(ctx, tokenString, sk)
+			tokenData, err := VerifyJWT(r.Context(), tokenString, sk)
 			if err != nil {
 				httpkit.RenderErr(w, problems.Unauthorized("Token validation failed"))
 				return
@@ -49,9 +51,11 @@ func AuthMdl(ctx context.Context, sk string) func(http.Handler) http.Handler {
 	}
 }
 
-func IdentityMdl(ctx context.Context, sk string, roles ...identity.IdnType) func(http.Handler) http.Handler {
+func IdentityMdl(sk string, roles ...identity.IdnType) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := r.Context()
+
 			authHeader := r.Header.Get("Authorization")
 			if authHeader == "" {
 				httpkit.RenderErr(w, problems.Unauthorized("Missing Authorization header"))
