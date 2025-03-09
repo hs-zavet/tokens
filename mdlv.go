@@ -43,7 +43,7 @@ func AuthMdl(sk string) func(http.Handler) http.Handler {
 			ctx = context.WithValue(ctx, AccountIDKey, tokenData.AccountID)
 			ctx = context.WithValue(ctx, SessionIDKey, tokenData.SessionID)
 			ctx = context.WithValue(ctx, SubscriptionKey, tokenData.SubTypeID)
-			ctx = context.WithValue(ctx, IdentityKey, tokenData.Identity)
+			ctx = context.WithValue(ctx, IdentityKey, &tokenData.Identity)
 			if tokenData.Identity == identity.Service {
 				ctx = context.WithValue(ctx, ServerKey, tokenData.ID)
 			}
@@ -93,7 +93,7 @@ func IdentityMdl(sk string, roles ...identity.IdnType) func(http.Handler) http.H
 			ctx = context.WithValue(ctx, AccountIDKey, tokenData.AccountID)
 			ctx = context.WithValue(ctx, SessionIDKey, tokenData.SessionID)
 			ctx = context.WithValue(ctx, SubscriptionKey, tokenData.SubTypeID)
-			ctx = context.WithValue(ctx, IdentityKey, tokenData.Identity)
+			ctx = context.WithValue(ctx, IdentityKey, &tokenData.Identity)
 			if tokenData.Identity == identity.Service {
 				ctx = context.WithValue(ctx, ServerKey, tokenData.ID)
 			}
@@ -143,7 +143,7 @@ func EachSubMdl(sk string, sub ...uuid.UUID) func(http.Handler) http.Handler {
 			ctx = context.WithValue(ctx, AccountIDKey, tokenData.AccountID)
 			ctx = context.WithValue(ctx, SessionIDKey, tokenData.SessionID)
 			ctx = context.WithValue(ctx, SubscriptionKey, tokenData.SubTypeID)
-			ctx = context.WithValue(ctx, IdentityKey, tokenData.Identity)
+			ctx = context.WithValue(ctx, IdentityKey, &tokenData.Identity)
 			if tokenData.Identity == identity.Service {
 				ctx = context.WithValue(ctx, ServerKey, tokenData.ID)
 			}
@@ -186,7 +186,7 @@ func SubMdl(sk string) func(http.Handler) http.Handler {
 			ctx = context.WithValue(ctx, AccountIDKey, tokenData.AccountID)
 			ctx = context.WithValue(ctx, SessionIDKey, tokenData.SessionID)
 			ctx = context.WithValue(ctx, SubscriptionKey, tokenData.SubTypeID)
-			ctx = context.WithValue(ctx, IdentityKey, tokenData.Identity)
+			ctx = context.WithValue(ctx, IdentityKey, &tokenData.Identity)
 			if tokenData.Identity == identity.Service {
 				ctx = context.WithValue(ctx, ServerKey, tokenData.ID)
 			}

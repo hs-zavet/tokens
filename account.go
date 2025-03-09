@@ -43,15 +43,15 @@ type StandardClaims struct {
 }
 
 func GenerateJWT(
-	iss string,           // who issued the token
-	sub string,           // account id (subject)
-	aud []string,         // claim identifies the recipients that the JWT is intended for
-	ttl time.Duration,    // time life
+	iss string, // who issued the token
+	sub string, // account id (subject)
+	aud []string, // claim identifies the recipients that the JWT is intended for
+	ttl time.Duration, // time life
 	idn identity.IdnType, // user role
 	sessionID *uuid.UUID, // session id
 	accountID *uuid.UUID, // account id
 	subTypeID *uuid.UUID, // subscription type id
-	sk string,            // secret key
+	sk string, // secret key
 ) (string, error) {
 	expirationTime := time.Now().Add(ttl * time.Second)
 	claims := &StandardClaims{
