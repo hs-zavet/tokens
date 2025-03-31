@@ -6,9 +6,9 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
-	"github.com/recovery-flow/comtools/httpkit"
-	"github.com/recovery-flow/comtools/httpkit/problems"
-	"github.com/recovery-flow/tokens/identity"
+	"github.com/hs-zavet/comtools/httpkit"
+	"github.com/hs-zavet/comtools/httpkit/problems"
+	"github.com/hs-zavet/tokens/identity"
 )
 
 func AuthMdl(sk string) func(http.Handler) http.Handler {

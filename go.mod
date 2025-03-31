@@ -1,11 +1,11 @@
-module github.com/recovery-flow/tokens
+module github.com/hs-zavet/tokens
 
 go 1.23.1
 
 require (
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/google/uuid v1.6.0
-	github.com/recovery-flow/comtools v0.0.53
+	github.com/hs-zavet/comtools v0.1.21
 )
 
 require (
