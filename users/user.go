@@ -1,20 +1,20 @@
-package identity
+package users
 
 import "fmt"
 
 type Role string
 
 const (
-	Service   Role = "service"
+	//Service   Role = "service"
 	SuperUser Role = "super_user"
 	Admin     Role = "admin"
 	User      Role = "user"
 )
 
-func ParseIdentityType(i string) (Role, error) {
+func ParseRole(i string) (Role, error) {
 	switch i {
-	case "service":
-		return Service, nil
+	//case "service":
+	//	return Service, nil
 	case "super_user":
 		return SuperUser, nil
 	case "admin":
@@ -26,17 +26,16 @@ func ParseIdentityType(i string) (Role, error) {
 	}
 }
 
-//	1, if first role is higher priority
-//
-// -1, if second role is higher priority
-//
-//	0, if roles are equal
+// CompareRolesUser
+// res : 1, if first role is higher priority
+// res : -1, if second role is higher priority
+// res : 0, if roles are equal
 func CompareRolesUser(role1, role2 Role) int {
 	priority := map[Role]int{
-		SuperUser: 3,
-		Service:   2,
-		Admin:     2,
-		User:      1,
+		SuperUser: 2,
+		//Service:   2,
+		Admin: 2,
+		User:  1,
 	}
 
 	p1, ok1 := priority[role1]
