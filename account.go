@@ -13,22 +13,21 @@ import (
 type contextKey string
 
 const (
-	ServerKey       contextKey = "server"
-	AccountIDKey    contextKey = "account_id"
-	IdentityKey     contextKey = "identity"
-	SessionIDKey    contextKey = "session_id"
-	SubscriptionKey contextKey = "subscription_type"
+	SubjectIDKey    contextKey = "subject"
+	RoleKey         contextKey = "role"
+	SessionIDKey    contextKey = "session"
+	SubscriptionKey contextKey = "subscription"
 )
 
 // VerifyJWT validates a JWT token and extracts relevant claims.
-func VerifyJWT(ctx context.Context, tokenString, sk string) (userData *StandardClaims, err error) {
-	claims := &StandardClaims{}
+func VerifyJWT(ctx context.Context, tokenString, sk string) (userData StandardClaims, err error) {
+	claims := StandardClaims{}
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(sk), nil
 	})
 
 	if err != nil || !token.Valid {
-		return nil, err
+		return StandardClaims{}, err
 	}
 
 	return claims, nil
@@ -36,80 +35,80 @@ func VerifyJWT(ctx context.Context, tokenString, sk string) (userData *StandardC
 
 type StandardClaims struct {
 	jwt.RegisteredClaims
-	Identity  identity.IdnType `json:"role"`
-	SessionID *uuid.UUID       `json:"session_id,omitempty"`
-	AccountID *uuid.UUID       `json:"account_id,omitempty"`
-	SubTypeID *uuid.UUID       `json:"subscription_type,omitempty"`
+	Role      identity.Role `json:"role"`
+	AccountID uuid.UUID     `json:"account_id"`
+	SessionID uuid.UUID     `json:"session_id,omitempty"`
+	SubID     uuid.UUID     `json:"subscription_type,omitempty"`
+}
+
+type GenerateJwtRequest struct {
+	Issuer    string           `json:"iss,omitempty"`
+	Subject   string           `json:"sub,omitempty"`
+	SessionID uuid.UUID        `json:"session_id,omitempty"`
+	SubsID    uuid.UUID        `json:"subscription_type,omitempty"`
+	AccountID uuid.UUID        `json:"account_id,omitempty"`
+	Role      identity.Role    `json:"i,omitempty"`
+	Audience  jwt.ClaimStrings `json:"aud,omitempty"`
+	Ttl       time.Duration    `json:"ttl,omitempty"`
 }
 
 func GenerateJWT(
-	iss string,           // who issued the token
-	sub string,           // account id (subject)
-	aud []string,         // claim identifies the recipients that the JWT is intended for
-	ttl time.Duration,    // time life
-	idn identity.IdnType, // user role
-	sessionID *uuid.UUID, // session id
-	accountID *uuid.UUID, // account id
-	subTypeID *uuid.UUID, // subscription type id
-	sk string,            // secret key
+	request GenerateJwtRequest,
+	sk string,
 ) (string, error) {
-	expirationTime := time.Now().Add(ttl * time.Second)
+	expirationTime := time.Now().Add(request.Ttl * time.Second)
 	claims := &StandardClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:    iss,
-			Subject:   sub,
+			Issuer:    request.Issuer,
+			Subject:   request.Subject,
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 		},
-		Identity:  idn,
-		SessionID: sessionID,
-		AccountID: accountID,
-		SubTypeID: subTypeID,
-	}
-	if aud != nil {
-		claims.RegisteredClaims.Audience = aud
+		AccountID: request.AccountID,
+		SessionID: request.SessionID,
+		SubID:     request.SubsID,
+		Role:      request.Role,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(sk))
 }
 
+type AccountData struct {
+	AccountID uuid.UUID     `json:"account_id,omitempty"`
+	SessionID uuid.UUID     `json:"session_id,omitempty"`
+	SubTypeID uuid.UUID     `json:"subscription_type,omitempty"`
+	Role      identity.Role `json:"role"`
+}
+
 func GetAccountData(ctx context.Context) (
-	initiatorID *uuid.UUID,
-	sessionID *uuid.UUID,
-	subTypeID *uuid.UUID,
-	InitiatorRole *identity.IdnType,
-	server *string,
+	data AccountData,
 	err error,
 ) {
 	var ok bool
-	initiatorID, ok = ctx.Value(AccountIDKey).(*uuid.UUID)
+	account, ok := ctx.Value(SubjectIDKey).(uuid.UUID)
 	if !ok {
-		return nil, nil, nil, nil, nil, fmt.Errorf("user not authenticated")
+		return AccountData{}, fmt.Errorf("user not authenticated")
 	}
 
-	sessionID, ok = ctx.Value(SessionIDKey).(*uuid.UUID)
+	session, ok := ctx.Value(SessionIDKey).(uuid.UUID)
 	if !ok {
-		return nil, nil, nil, nil, nil, fmt.Errorf("sessions not authenticated")
+		return AccountData{}, fmt.Errorf("sessions not authenticated")
 	}
 
-	InitiatorRole, ok = ctx.Value(IdentityKey).(*identity.IdnType)
+	role, ok := ctx.Value(RoleKey).(identity.Role)
 	if !ok {
-		return nil, nil, nil, nil, nil, fmt.Errorf("role not authenticated")
+		return AccountData{}, fmt.Errorf("role not authenticated")
 	}
 
-	subTypeID, ok = ctx.Value(SubscriptionKey).(*uuid.UUID)
+	sub, ok := ctx.Value(SubscriptionKey).(uuid.UUID)
 	if !ok {
-		return nil, nil, nil, nil, nil, fmt.Errorf("subscription type not authenticated")
+		return AccountData{}, fmt.Errorf("subscription type not authenticated")
 	}
 
-	if *InitiatorRole == identity.Service {
-		server, ok := ctx.Value(ServerKey).(string)
-		if !ok {
-			return nil, nil, nil, nil, nil, fmt.Errorf("server not authenticated")
-		}
-
-		return initiatorID, sessionID, nil, InitiatorRole, &server, nil
-	}
-
-	return initiatorID, sessionID, subTypeID, InitiatorRole, nil, nil
+	return AccountData{
+		AccountID: account,
+		SessionID: session,
+		SubTypeID: sub,
+		Role:      role,
+	}, nil
 }

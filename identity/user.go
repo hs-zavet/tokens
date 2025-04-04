@@ -2,16 +2,16 @@ package identity
 
 import "fmt"
 
-type IdnType string
+type Role string
 
 const (
-	Service   IdnType = "service"
-	SuperUser IdnType = "super_user"
-	Admin     IdnType = "admin"
-	User      IdnType = "user"
+	Service   Role = "service"
+	SuperUser Role = "super_user"
+	Admin     Role = "admin"
+	User      Role = "user"
 )
 
-func ParseIdentityType(i string) (IdnType, error) {
+func ParseIdentityType(i string) (Role, error) {
 	switch i {
 	case "service":
 		return Service, nil
@@ -22,7 +22,7 @@ func ParseIdentityType(i string) (IdnType, error) {
 	case "user":
 		return User, nil
 	default:
-		return "", fmt.Errorf("incorect Identity type")
+		return "", fmt.Errorf("incorect Role type")
 	}
 }
 
@@ -31,8 +31,8 @@ func ParseIdentityType(i string) (IdnType, error) {
 // -1, if second role is higher priority
 //
 //	0, if roles are equal
-func CompareRolesUser(role1, role2 IdnType) int {
-	priority := map[IdnType]int{
+func CompareRolesUser(role1, role2 Role) int {
+	priority := map[Role]int{
 		SuperUser: 3,
 		Service:   2,
 		Admin:     2,
