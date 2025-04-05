@@ -5,14 +5,14 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/hs-zavet/tokens/users"
+	"github.com/hs-zavet/tokens/roles"
 )
 
 type TokenData struct {
 	AccountID uuid.UUID  `json:"account_id,omitempty"`
 	SessionID uuid.UUID  `json:"session_id,omitempty"`
 	SubTypeID uuid.UUID  `json:"subscription_type,omitempty"`
-	Role      users.Role `json:"role"`
+	Role      roles.Role `json:"role"`
 	Subject   string
 	Audience  []string
 }
@@ -32,7 +32,7 @@ func GetAccountData(ctx context.Context) (
 		return TokenData{}, fmt.Errorf("sessions not authenticated")
 	}
 
-	role, ok := ctx.Value(RoleKey).(users.Role)
+	role, ok := ctx.Value(RoleKey).(roles.Role)
 	if !ok {
 		return TokenData{}, fmt.Errorf("role not authenticated")
 	}

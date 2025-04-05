@@ -6,7 +6,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
-	"github.com/hs-zavet/tokens/users"
+	"github.com/hs-zavet/tokens/roles"
 )
 
 type contextKey string
@@ -20,7 +20,7 @@ const (
 
 type UserClaims struct {
 	jwt.RegisteredClaims
-	Role         users.Role `json:"role"`
+	Role         roles.Role `json:"role"`
 	Session      uuid.UUID  `json:"session_id,omitempty"`
 	Subscription uuid.UUID  `json:"subscription_type,omitempty"`
 }
@@ -43,7 +43,7 @@ type GenerateUserJwtRequest struct {
 	Account      uuid.UUID        `json:"sub,omitempty"`
 	Session      uuid.UUID        `json:"session_id,omitempty"`
 	Subscription uuid.UUID        `json:"subscription_type,omitempty"`
-	Role         users.Role       `json:"i,omitempty"`
+	Role         roles.Role       `json:"i,omitempty"`
 	Audience     jwt.ClaimStrings `json:"aud,omitempty"`
 	Ttl          time.Duration    `json:"ttl,omitempty"`
 }
