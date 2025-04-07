@@ -30,7 +30,7 @@ func AuthMdl(sk string) func(http.Handler) http.Handler {
 
 			tokenString := parts[1]
 
-			serviceData, err := verifyServerJWT(ctx, tokenString, sk)
+			serviceData, err := VerifyServerJWT(ctx, tokenString, sk)
 			if err == nil {
 				ctx = context.WithValue(ctx, ServerKey, serviceData.Subject)
 				ctx = context.WithValue(ctx, AudienceKey, serviceData.Audience)
@@ -39,7 +39,7 @@ func AuthMdl(sk string) func(http.Handler) http.Handler {
 				return
 			}
 
-			userData, err := verifyUserJWT(r.Context(), tokenString, sk)
+			userData, err := VerifyUserJWT(r.Context(), tokenString, sk)
 			if err != nil {
 				httpkit.RenderErr(w, problems.Unauthorized("Token validation failed"))
 				return
@@ -74,7 +74,7 @@ func AccessGrant(sk string, roles ...roles.Role) func(http.Handler) http.Handler
 
 			tokenString := parts[1]
 
-			serviceData, err := verifyServerJWT(ctx, tokenString, sk)
+			serviceData, err := VerifyServerJWT(ctx, tokenString, sk)
 			if err == nil {
 				ctx = context.WithValue(ctx, ServerKey, serviceData.Subject)
 				ctx = context.WithValue(ctx, AudienceKey, serviceData.Audience)
@@ -83,7 +83,7 @@ func AccessGrant(sk string, roles ...roles.Role) func(http.Handler) http.Handler
 				return
 			}
 
-			userData, err := verifyUserJWT(ctx, tokenString, sk)
+			userData, err := VerifyUserJWT(ctx, tokenString, sk)
 			if err != nil {
 				httpkit.RenderErr(w, problems.Unauthorized("Token validation failed"))
 				return
@@ -130,7 +130,7 @@ func SubMdl(sk string) func(http.Handler) http.Handler {
 
 			tokenString := parts[1]
 
-			serviceData, err := verifyServerJWT(ctx, tokenString, sk)
+			serviceData, err := VerifyServerJWT(ctx, tokenString, sk)
 			if err == nil {
 				ctx = context.WithValue(ctx, ServerKey, serviceData.Subject)
 				ctx = context.WithValue(ctx, AudienceKey, serviceData.Audience)
@@ -139,7 +139,7 @@ func SubMdl(sk string) func(http.Handler) http.Handler {
 				return
 			}
 
-			tokenData, err := verifyUserJWT(ctx, tokenString, sk)
+			tokenData, err := VerifyUserJWT(ctx, tokenString, sk)
 			if err != nil {
 				httpkit.RenderErr(w, problems.Unauthorized("Token validation failed"))
 				return

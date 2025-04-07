@@ -25,7 +25,7 @@ type UserClaims struct {
 	Subscription uuid.UUID  `json:"subscription_type,omitempty"`
 }
 
-func verifyUserJWT(ctx context.Context, tokenString, sk string) (UserClaims, error) {
+func VerifyUserJWT(ctx context.Context, tokenString, sk string) (UserClaims, error) {
 	claims := UserClaims{}
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(sk), nil
