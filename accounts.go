@@ -74,7 +74,7 @@ type AccountData struct {
 	Role      roles.Role `json:"role"`
 }
 
-func GetTokenData(ctx context.Context) (
+func GetAccountTokenData(ctx context.Context) (
 	data AccountData,
 	err error,
 ) {
