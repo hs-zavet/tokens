@@ -18,7 +18,7 @@ type ServiceClaims struct {
 
 func VerifyServerJWT(ctx context.Context, tokenString, sk string) (ServiceClaims, error) {
 	claims := ServiceClaims{}
-	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(sk), nil
 	})
 

@@ -39,7 +39,7 @@ func AuthMdl(sk string) func(http.Handler) http.Handler {
 				return
 			}
 
-			userData, err := VerifyUserJWT(r.Context(), tokenString, sk)
+			userData, err := VerifyAccountsJWT(r.Context(), tokenString, sk)
 			if err != nil {
 				httpkit.RenderErr(w, problems.Unauthorized("Token validation failed"))
 				return
@@ -83,7 +83,7 @@ func AccessGrant(sk string, roles ...roles.Role) func(http.Handler) http.Handler
 				return
 			}
 
-			userData, err := VerifyUserJWT(ctx, tokenString, sk)
+			userData, err := VerifyAccountsJWT(ctx, tokenString, sk)
 			if err != nil {
 				httpkit.RenderErr(w, problems.Unauthorized("Token validation failed"))
 				return
@@ -139,7 +139,7 @@ func SubMdl(sk string) func(http.Handler) http.Handler {
 				return
 			}
 
-			tokenData, err := VerifyUserJWT(ctx, tokenString, sk)
+			tokenData, err := VerifyAccountsJWT(ctx, tokenString, sk)
 			if err != nil {
 				httpkit.RenderErr(w, problems.Unauthorized("Token validation failed"))
 				return
