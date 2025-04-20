@@ -11,7 +11,7 @@ import (
 	"github.com/hs-zavet/tokens/roles"
 )
 
-func AuthMdl(sk string) func(http.Handler) http.Handler {
+func AuthMdl(skAccount, skService string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
@@ -30,7 +30,7 @@ func AuthMdl(sk string) func(http.Handler) http.Handler {
 
 			tokenString := parts[1]
 
-			serviceData, err := VerifyServerJWT(ctx, tokenString, sk)
+			serviceData, err := VerifyServerJWT(ctx, tokenString, skService)
 			if err == nil {
 				ctx = context.WithValue(ctx, ServerKey, serviceData.Subject)
 				ctx = context.WithValue(ctx, AudienceKey, serviceData.Audience)
@@ -39,7 +39,7 @@ func AuthMdl(sk string) func(http.Handler) http.Handler {
 				return
 			}
 
-			userData, err := VerifyAccountsJWT(r.Context(), tokenString, sk)
+			userData, err := VerifyAccountsJWT(r.Context(), tokenString, skAccount)
 			if err != nil {
 				httpkit.RenderErr(w, problems.Unauthorized("Token validation failed"))
 				return
@@ -55,7 +55,7 @@ func AuthMdl(sk string) func(http.Handler) http.Handler {
 	}
 }
 
-func AccessGrant(sk string, roles ...roles.Role) func(http.Handler) http.Handler {
+func AccessGrant(skAccount, skService string, roles ...roles.Role) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
@@ -74,7 +74,7 @@ func AccessGrant(sk string, roles ...roles.Role) func(http.Handler) http.Handler
 
 			tokenString := parts[1]
 
-			serviceData, err := VerifyServerJWT(ctx, tokenString, sk)
+			serviceData, err := VerifyServerJWT(ctx, tokenString, skService)
 			if err == nil {
 				ctx = context.WithValue(ctx, ServerKey, serviceData.Subject)
 				ctx = context.WithValue(ctx, AudienceKey, serviceData.Audience)
@@ -83,7 +83,7 @@ func AccessGrant(sk string, roles ...roles.Role) func(http.Handler) http.Handler
 				return
 			}
 
-			userData, err := VerifyAccountsJWT(ctx, tokenString, sk)
+			userData, err := VerifyAccountsJWT(ctx, tokenString, skAccount)
 			if err != nil {
 				httpkit.RenderErr(w, problems.Unauthorized("Token validation failed"))
 				return

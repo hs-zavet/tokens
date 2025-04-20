@@ -51,7 +51,7 @@ func GenerateUserJWT(
 	request GenerateUserJwtRequest,
 	sk string,
 ) (string, error) {
-	expirationTime := time.Now().Add(request.Ttl * time.Second)
+	expirationTime := time.Now().UTC().Add(request.Ttl * time.Second)
 	claims := &AccountClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    request.Issuer,

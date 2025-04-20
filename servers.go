@@ -40,7 +40,7 @@ func GenerateServiceJWT(
 	request GenerateServiceJwtRequest,
 	sk string,
 ) (string, error) {
-	expirationTime := time.Now().Add(request.Ttl * time.Second)
+	expirationTime := time.Now().UTC().Add(request.Ttl * time.Second)
 	claims := &ServiceClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    request.Issuer,
